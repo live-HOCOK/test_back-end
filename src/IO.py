@@ -4,8 +4,8 @@ import hashlib
 import src.constants as const
 
 
-async def save_file(multipart):
-    async for obj in multipart:
+async def save_file(request):
+    async for obj in await request.multipart():
         if obj.filename is not None:
             data = await obj.read()
             file = BytesIO(data)
@@ -22,12 +22,17 @@ async def save_file(multipart):
 
 
 async def delete_file(hash_file):
-    file_path = os.path.join(const.DIRECTORY_STORE_NAME, hash_file[0:2])
-    file_path = os.path.join(file_path, hash_file)
+    file_path = await get_file_path(hash_file)
     if not os.path.isfile(file_path):
         return const.STATUS_FILE_NOT_FOUND
     os.remove(file_path)
     return const.STATUS_OK
+
+
+async def get_file_path(hash_file):
+    file_path = os.path.join(const.DIRECTORY_STORE_NAME, hash_file[0:2])
+    file_path = os.path.join(file_path, hash_file)
+    return file_path
 
 
 async def create_directory(path):

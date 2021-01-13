@@ -1,10 +1,14 @@
 from aiohttp import web
-from src.IO import save_file, delete_file
+from src.IO import save_file, delete_file, get_file_path
+import src.constants as const
 
 
 async def upload(request):
-    hash_file = await save_file(await request.multipart())
-    data = {'hash': hash_file}
+    hash_file = await save_file(request)
+    data = {
+        'status': const.STATUS_OK if hash_file else const.STATUS_FAILED,
+        'hash': hash_file
+    }
     return web.json_response(data)
 
 
@@ -15,5 +19,7 @@ async def delete(request):
 
 
 async def download(request):
-    data = {'status': 'neOK'}
-    return web.json_response(data)
+    hash_file = request.match_info.get('hash_file', None)
+    file_path = await get_file_path(hash_file)
+    resp = web.FileResponse(file_path)
+    return resp
