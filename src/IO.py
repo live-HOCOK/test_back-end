@@ -23,7 +23,7 @@ async def save_file(request):
 
 async def delete_file(hash_file):
     file_path = await get_file_path(hash_file)
-    if not os.path.isfile(file_path):
+    if not file_path:
         return const.STATUS_FILE_NOT_FOUND
     os.remove(file_path)
     return const.STATUS_OK
@@ -32,6 +32,8 @@ async def delete_file(hash_file):
 async def get_file_path(hash_file):
     file_path = os.path.join(const.DIRECTORY_STORE_NAME, hash_file[0:2])
     file_path = os.path.join(file_path, hash_file)
+    if not os.path.isfile(file_path):
+        return None
     return file_path
 
 

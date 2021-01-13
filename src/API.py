@@ -21,5 +21,8 @@ async def delete(request):
 async def download(request):
     hash_file = request.match_info.get('hash_file', None)
     file_path = await get_file_path(hash_file)
+    if not file_path:
+        data = {'status': const.STATUS_FILE_NOT_FOUND}
+        return web.json_response(data)
     resp = web.FileResponse(file_path)
     return resp
